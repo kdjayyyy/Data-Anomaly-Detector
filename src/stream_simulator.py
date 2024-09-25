@@ -1,6 +1,6 @@
 import numpy as np
 
-class StreamSimulator:
+class DataStreamSimulator:
     def __init__(self, num_points=1000):
         """
         Initialize the stream simulator.
@@ -9,11 +9,11 @@ class StreamSimulator:
         """
         self.num_points = num_points
     
-    def generate_stream(self):
+    def generate_data(self):
         """
         Generate a data stream with trend, seasonality, and random noise.
         
-        :return: Simulated data stream as a numpy array.
+        :return: A generator that yields simulated data points.
         """
         # Create a linear trend
         trend = np.linspace(1, 100, self.num_points)
@@ -25,5 +25,8 @@ class StreamSimulator:
         noise = np.random.normal(0, 5, self.num_points)
         
         # Combine all components
-        return trend + seasonal + noise
+        data_stream = trend + seasonal + noise
+        
+        for value in data_stream:
+            yield value  # Yield each data point
 

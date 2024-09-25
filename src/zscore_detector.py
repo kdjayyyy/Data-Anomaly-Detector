@@ -1,5 +1,4 @@
 import numpy as np
-from streamad.model import ZScoreDetector
 
 class ZScoreAnomalyDetector:
     def __init__(self, window_len=50, is_global=False):
@@ -10,25 +9,43 @@ class ZScoreAnomalyDetector:
         :param is_global: Whether to detect anomalies globally (default=False).
         """
         self.window_len = window_len
-        self.detector = ZScoreDetector(is_global=is_global)
+        self.is_global = is_global
 
         # Sliding window to store recent data points
         self.data_window = []
 
-    def detect(self, value):
+    def update(self, value):
         """
-        Detects if the provided value is an anomaly using the Z-Score method.
+        Updates the sliding window with a new data point.
         
-        :param value: The new data point to analyze.
-        :return: Anomaly score (higher values indicate higher anomaly likelihood).
+        :param value: The new data point to add to the window.
         """
-        # Add value to the sliding window
         self.data_window.append(value)
 
         # Limit the window to the specified size
         if len(self.data_window) > self.window_len:
             self.data_window.pop(0)
 
-        # Calculate anomaly score using the ZScoreDetector from StreamAD
-        score = self.detector.fit_score(np.array(self.data_window[-1]))
-        return score
+    def detect(self, value):
+        """
+        Detects if the provided value is an anomaly using the Z-Score method.
+        
+        :param value: The new data point to analyze.
+        :return: Tuple containing the Z-score and a boolean indicating if it's an anomaly.
+        """
+        self.update(value)
+
+        if len(self.data_window) < self.window_len:
+            return None, False  # Not enough data to compute Z-Score
+
+        # Calculate mean and standard deviation
+        mean = np.mean(self.data_window)
+        std_dev = np.std(self.data_window)
+
+        # Calculate the Z-Score
+        z_score = (value - mean) / std_dev if std_dev > 0 else 0
+
+        # Determine if the value is an anomaly
+        is_anomaly = abs(z_score) > 3  # Using a threshold of 3 for anomaly detection
+
+        return z_score, is_anomaly

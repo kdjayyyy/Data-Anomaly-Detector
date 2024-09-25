@@ -18,7 +18,13 @@ class DataVisualizer:
         self.data_stream = []  # List for streaming data points
         self.anomaly_list = []  # Holds (index, value) for anomalies
 
-    def add_data_point(self, value, is_anomaly):
+        # Set plot labels and title
+        self.ax.set_xlabel('Data Point Index')
+        self.ax.set_ylabel('Value')
+        self.ax.set_title('Real-Time Data Visualization')
+        self.ax.legend()
+
+    def update(self, value, is_anomaly):
         """
         Adds a new data point to the visualization and checks for anomalies.
 
@@ -60,7 +66,7 @@ class DataVisualizer:
 
         plt.pause(0.01)  # Pause for a brief moment to update the plot
 
-    def display(self):
+    def show(self):
         """ Finalizes the plot for display after processing all data points. """
         plt.ioff()  # Turn off interactive mode
         plt.show()  # Show the plot
